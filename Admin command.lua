@@ -1,0 +1,185 @@
+--// SAB Admin Panel v3 (by ChatGPT)
+-- Có animation mượt khi mở/đóng + nút toggle panel
+
+-- Xóa GUI cũ nếu tồn tại
+if game.CoreGui:FindFirstChild("SABPanel") then
+	game.CoreGui.SABPanel:Destroy()
+end
+
+-- Khai báo VirtualInputManager
+local VIM = game:GetService("VirtualInputManager")
+
+-- Tạo GUI
+local gui = Instance.new("ScreenGui", game.CoreGui)
+gui.Name = "SABPanel"
+gui.ResetOnSpawn = false
+
+-- Khung chính
+local main = Instance.new("Frame", gui)
+main.Size = UDim2.new(0, 400, 0, 370)
+main.Position = UDim2.new(0.5, -200, 0.5, -185)
+main.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+main.BorderSizePixel = 2
+main.BorderColor3 = Color3.fromRGB(128, 0, 255)
+main.Active = true
+main.Draggable = true
+main.Visible = false
+
+-- Bo góc
+local corner = Instance.new("UICorner", main)
+corner.CornerRadius = UDim.new(0, 20)
+
+-- Hiệu ứng mở/đóng
+local TweenService = game:GetService("TweenService")
+
+local function showPanel()
+	main.Visible = true
+	main.Size = UDim2.new(0, 0, 0, 0)
+	main.Position = UDim2.new(0.5, 0, 0.5, 0)
+	local tween = TweenService:Create(main, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+		Size = UDim2.new(0, 400, 0, 370),
+		Position = UDim2.new(0.5, -200, 0.5, -185)
+	})
+	tween:Play()
+end
+
+local function hidePanel()
+	local tween = TweenService:Create(main, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+		Size = UDim2.new(0, 0, 0, 0),
+		Position = UDim2.new(0.5, 0, 0.5, 0)
+	})
+	tween:Play()
+	tween.Completed:Connect(function()
+		main.Visible = false
+	end)
+end
+
+-- Nút bật/tắt panel
+local toggleBtn = Instance.new("TextButton", gui)
+toggleBtn.Size = UDim2.new(0, 50, 0, 50)
+toggleBtn.Position = UDim2.new(0.05, 0, 0.8, 0)
+toggleBtn.BackgroundColor3 = Color3.fromRGB(128, 0, 255)
+toggleBtn.Text = "phong🥀"
+toggleBtn.TextColor3 = Color3.new(1, 1, 1)
+toggleBtn.Font = Enum.Font.GothamBold
+toggleBtn.TextSize = 22
+toggleBtn.Active = true
+toggleBtn.Draggable = true
+Instance.new("UICorner", toggleBtn).CornerRadius = UDim.new(1, 0)
+
+local isOpen = false
+toggleBtn.MouseButton1Click:Connect(function()
+	if isOpen then
+		hidePanel()
+	else
+		showPanel()
+	end
+	isOpen = not isOpen
+end)
+
+-- Tiêu đề
+local title = Instance.new("TextLabel", main)
+title.Size = UDim2.new(1, 0, 0, 35)
+title.BackgroundTransparency = 1
+title.Text = "🧠 Admin Command Script ( phong)"
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 18
+
+-- Verified
+local verified = Instance.new("TextButton", main)
+verified.Size = UDim2.new(0.9, 0, 0, 35)
+verified.Position = UDim2.new(0.05, 0, 0.12, 0)
+verified.BackgroundColor3 = Color3.fromRGB(76, 175, 80)
+verified.Text = "✔ Verified"
+verified.TextColor3 = Color3.new(1, 1, 1)
+verified.Font = Enum.Font.GothamBold
+verified.TextSize = 16
+Instance.new("UICorner", verified).CornerRadius = UDim.new(0, 10)
+
+-- Ô nhập
+local moneyBox = Instance.new("TextBox", main)
+moneyBox.Size = UDim2.new(0.42, 0, 0, 30)
+moneyBox.Position = UDim2.new(0.05, 0, 0.25, 0)
+moneyBox.PlaceholderText = "Enter money..."
+moneyBox.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+moneyBox.TextColor3 = Color3.new(1, 1, 1)
+moneyBox.Font = Enum.Font.Gotham
+moneyBox.TextSize = 14
+Instance.new("UICorner", moneyBox).CornerRadius = UDim.new(0, 10)
+
+local rebirthBox = Instance.new("TextBox", main)
+rebirthBox.Size = UDim2.new(0.42, 0, 0, 30)
+rebirthBox.Position = UDim2.new(0.53, 0, 0.25, 0)
+rebirthBox.PlaceholderText = "Enter rebirth..."
+rebirthBox.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+rebirthBox.TextColor3 = Color3.new(1, 1, 1)
+rebirthBox.Font = Enum.Font.Gotham
+rebirthBox.TextSize = 14
+Instance.new("UICorner", rebirthBox).CornerRadius = UDim.new(0, 10)
+
+-- Hàm tạo nút
+local function createButton(text, color, posX, posY)
+	local btn = Instance.new("TextButton", main)
+	btn.Size = UDim2.new(0.42, 0, 0, 35)
+	btn.Position = UDim2.new(posX, 0, posY, 0)
+	btn.BackgroundColor3 = color
+	btn.Text = text
+	btn.TextColor3 = Color3.new(1, 1, 1)
+	btn.Font = Enum.Font.GothamBold
+	btn.TextSize = 14
+	Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 10)
+	return btn
+end
+
+-- Nút chức năng
+local btnMoney = createButton("💰 Set Money", Color3.fromRGB(52, 199, 89), 0.05, 0.38)
+local btnRebirth = createButton("🔁 Set Rebirth", Color3.fromRGB(52, 152, 219), 0.53, 0.38)
+local btnMorph = createButton("🧠 Brainrots Morph", Color3.fromRGB(108, 92, 231), 0.05, 0.52)
+local btnDup = createButton("🌀 Duplicated", Color3.fromRGB(155, 89, 182), 0.53, 0.52)
+local btnSpawner = createButton("🧬 Brainrots Spawner", Color3.fromRGB(93, 173, 226), 0.05, 0.66)
+local btnLucky = createButton("🍀 Buff lucky", Color3.fromRGB(46, 204, 113), 0.53, 0.66)
+local btnExec = createButton("⚡ Execute All Event", Color3.fromRGB(241, 196, 15), 0.05, 0.80)
+
+-- Hành động
+btnMoney.MouseButton1Click:Connect(function()
+	print("Set Money:", moneyBox.Text)
+end)
+
+btnRebirth.MouseButton1Click:Connect(function()
+	print("Set Rebirth:", rebirthBox.Text)
+end)
+
+btnMorph.MouseButton1Click:Connect(function()
+	VIM:SendKeyEvent(true, Enum.KeyCode.K, false, game)
+	VIM:SendKeyEvent(false, Enum.KeyCode.K, false, game)
+end)
+
+btnDup.MouseButton1Click:Connect(function()
+	pcall(function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/tunadan212/Kkkk/refs/heads/main/K"))()
+	end)
+end)
+
+btnSpawner.MouseButton1Click:Connect(function()
+	pcall(function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/PhongYTB/Loader/refs/heads/main/C%C3%A1c.lua"))()
+	end)
+end)
+
+btnLucky.MouseButton1Click:Connect(function()
+	pcall(function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/NoobRoblox/Test/refs/heads/main/Lucky"))()
+	end)
+end)
+btnExec.MouseButton1Click:Connect(function()
+	VIM:SendKeyEvent(true, Enum.KeyCode.Y, false, game)
+	VIM:SendKeyEvent(false, Enum.KeyCode.Y, false, game)
+end)
+
+-- Verified click
+verified.MouseButton1Click:Connect(function()
+	verified.Text = "✔ Verified ✓"
+	verified.BackgroundColor3 = Color3.fromRGB(56, 142, 60)
+end)
+
