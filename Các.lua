@@ -1,0 +1,206 @@
+-- Lucky Block Spawner GUI (Full Visual + Animation + Drag + True Loop + Hover Tween)
+-- By ChatGPT (Final + Hover Effects)
+
+pcall(function()
+	if game.CoreGui:FindFirstChild("LuckyBlockGUI") then
+		game.CoreGui.LuckyBlockGUI:Destroy()
+	end
+end)
+
+local VIM = game:GetService("VirtualInputManager")
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "Brainrot Spawner Hub"
+gui.ResetOnSpawn = false
+gui.Parent = game.CoreGui
+
+local main = Instance.new("Frame")
+main.Size = UDim2.new(0, 330, 0, 230)
+main.Position = UDim2.new(0.5, -165, 0.5, -115)
+main.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+main.BorderSizePixel = 0
+main.Active = true
+main.Draggable = true
+main.Visible = false
+main.Parent = gui
+
+Instance.new("UICorner", main).CornerRadius = UDim.new(0, 20)
+
+-- Animation mở GUI
+main.Visible = true
+main.BackgroundTransparency = 1
+main.Size = UDim2.new(0, 100, 0, 70)
+TweenService:Create(main, TweenInfo.new(0.5, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+	BackgroundTransparency = 0,
+	Size = UDim2.new(0, 330, 0, 230)
+}):Play()
+
+-- Tiêu đề
+local title = Instance.new("TextLabel")
+title.Parent = main
+title.Size = UDim2.new(1, -45, 0, 40)
+title.Position = UDim2.new(0, 0, 0, 0)
+title.BackgroundTransparency = 1
+title.Text = "Brainrot Spawner"
+title.Font = Enum.Font.GothamBold
+title.TextSize = 20
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.TextXAlignment = Enum.TextXAlignment.Center
+
+-- Nút đóng
+local close = Instance.new("TextButton")
+close.Parent = main
+close.Size = UDim2.new(0, 30, 0, 30)
+close.Position = UDim2.new(1, -35, 0, 5)
+close.BackgroundColor3 = Color3.fromRGB(200, 60, 60)
+close.Text = "X"
+close.Font = Enum.Font.GothamBold
+close.TextSize = 18
+close.TextColor3 = Color3.fromRGB(255, 255, 255)
+Instance.new("UICorner", close).CornerRadius = UDim.new(0, 10)
+close.MouseButton1Click:Connect(function() main:Destroy() end)
+
+-- Hover cho close
+close.MouseEnter:Connect(function()
+	TweenService:Create(close, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(255, 80, 80)}):Play()
+end)
+close.MouseLeave:Connect(function()
+	TweenService:Create(close, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(200, 60, 60)}):Play()
+end)
+
+-- Dòng mô tả
+local madeby = Instance.new("TextLabel")
+madeby.Parent = main
+madeby.Size = UDim2.new(1, 0, 0, 20)
+madeby.Position = UDim2.new(0, 0, 0, 40)
+madeby.BackgroundTransparency = 1
+madeby.Text = "Made By phong vietsub"
+madeby.Font = Enum.Font.Gotham
+madeby.TextSize = 14
+madeby.TextColor3 = Color3.fromRGB(180, 180, 180)
+madeby.TextXAlignment = Enum.TextXAlignment.Center
+
+-- Ô nhập
+local textbox = Instance.new("TextBox")
+textbox.Parent = main
+textbox.Size = UDim2.new(0.9, 0, 0, 35)
+textbox.Position = UDim2.new(0.05, 0, 0, 70)
+textbox.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+textbox.Text = "Strawberry Elephant"
+textbox.Font = Enum.Font.Gotham
+textbox.TextSize = 14
+textbox.TextColor3 = Color3.fromRGB(255, 255, 255)
+textbox.ClearTextOnFocus = false
+Instance.new("UICorner", textbox).CornerRadius = UDim.new(0, 10)
+
+-- Mutation
+local mutation = Instance.new("TextButton")
+mutation.Parent = main
+mutation.Size = UDim2.new(0.42, 0, 0, 35)
+mutation.Position = UDim2.new(0.05, 0, 0, 115)
+mutation.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+mutation.Text = "Mutation (optional)"
+mutation.Font = Enum.Font.Gotham
+mutation.TextSize = 14
+mutation.TextColor3 = Color3.fromRGB(150, 150, 150)
+Instance.new("UICorner", mutation).CornerRadius = UDim.new(0, 10)
+mutation.MouseEnter:Connect(function()
+	TweenService:Create(mutation, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(60, 60, 60)}):Play()
+end)
+mutation.MouseLeave:Connect(function()
+	TweenService:Create(mutation, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(40, 40, 40)}):Play()
+end)
+
+-- LOOP BUTTON
+local loopBtn = Instance.new("TextButton")
+loopBtn.Parent = main
+loopBtn.Size = UDim2.new(0.22, 0, 0, 35)
+loopBtn.Position = UDim2.new(0.49, 0, 0, 115)
+loopBtn.BackgroundColor3 = Color3.fromRGB(70, 70, 90)
+loopBtn.Text = "Loop: OFF"
+loopBtn.Font = Enum.Font.Gotham
+loopBtn.TextSize = 14
+loopBtn.TextColor3 = Color3.fromRGB(220, 220, 220)
+Instance.new("UICorner", loopBtn).CornerRadius = UDim.new(0, 10)
+
+local looping = false
+local loopThread
+
+loopBtn.MouseButton1Click:Connect(function()
+	looping = not looping
+	if looping then
+		loopBtn.Text = "Loop: ON"
+		loopBtn.BackgroundColor3 = Color3.fromRGB(100, 255, 100)
+
+		loopThread = task.spawn(function()
+			while looping do
+				pcall(function()
+					-- Gửi phím xuống
+					VIM:SendKeyEvent(true, Enum.KeyCode.P, false, game)
+					task.wait(0.08) -- giữ phím 80ms (giống thật)
+					-- Nhả phím
+					VIM:SendKeyEvent(false, Enum.KeyCode.P, false, game)
+				end)
+				task.wait(0.25) -- delay giữa các lần nhấn
+			end
+		end)
+
+	else
+		loopBtn.Text = "Loop: OFF"
+		loopBtn.BackgroundColor3 = Color3.fromRGB(70, 70, 90)
+		looping = false
+	end
+end)
+
+-- Hover Loop
+loopBtn.MouseEnter:Connect(function()
+	TweenService:Create(loopBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(100, 100, 130)}):Play()
+end)
+loopBtn.MouseLeave:Connect(function()
+	if not looping then
+		TweenService:Create(loopBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(70, 70, 90)}):Play()
+	end
+end)
+
+-- SPAWN
+local spawn = Instance.new("TextButton")
+spawn.Parent = main
+spawn.Size = UDim2.new(0.22, 0, 0, 35)
+spawn.Position = UDim2.new(0.73, 0, 0, 115)
+spawn.BackgroundColor3 = Color3.fromRGB(120, 90, 250)
+spawn.Text = "SPAWN"
+spawn.Font = Enum.Font.GothamBold
+spawn.TextSize = 14
+spawn.TextColor3 = Color3.fromRGB(255, 255, 255)
+Instance.new("UICorner", spawn).CornerRadius = UDim.new(0, 10)
+
+spawn.MouseButton1Click:Connect(function()
+	pcall(function()
+		VIM:SendKeyEvent(true, Enum.KeyCode.P, false, game)
+		task.wait(0.05)
+		VIM:SendKeyEvent(false, Enum.KeyCode.P, false, game)
+	end)
+end)
+
+-- Hover Spawn
+spawn.MouseEnter:Connect(function()
+	TweenService:Create(spawn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(160, 130, 255)}):Play()
+end)
+spawn.MouseLeave:Connect(function()
+	TweenService:Create(spawn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(120, 90, 250)}):Play()
+end)
+
+-- Traits
+local traits = Instance.new("TextLabel")
+traits.Parent = main
+traits.Size = UDim2.new(0.9, 0, 0, 35)
+traits.Position = UDim2.new(0.05, 0, 0, 165)
+traits.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+traits.Text = "Traits (0)"
+traits.Font = Enum.Font.Gotham
+traits.TextSize = 14
+traits.TextColor3 = Color3.fromRGB(200, 200, 200)
+traits.TextXAlignment = Enum.TextXAlignment.Center
+Instance.new("UICorner", traits).CornerRadius = UDim.new(0, 10)
